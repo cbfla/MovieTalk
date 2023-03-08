@@ -1,0 +1,221 @@
+@Transactional
+@Override
+public boolean modify(BoardVO board) {
+
+    if (board == null) {
+        return false;
+    }
+
+    log.info("modify......" + board);
+
+    attachMapper.deleteAll(board.getBno());
+
+    boolean modifyResult = boardMapper.update(board) == 1;
+
+    List<AttachVO> attachList = board.getAttachList() != null ? board.getAttachList() : new ArrayList<>();
+
+    if (modifyResult && !attachList.isEmpty()) {
+
+        attachList.forEach(attach -> {
+
+            attach.setBno(board.getBno());
+            attachMapper.insert(attach);
+        });
+    }
+
+    return modifyResult;
+}
+
+
+
+
+
+
+
+
+
+
+@Transactional
+   @Override
+   public boolean modify(BoardVO board) {
+
+      log.info("수정 :" + board);
+
+      //int result = mapper.update(board);
+      
+      attachMapper.deleteAll(board.getB_seq());
+      
+      boolean modifyResult = mapper.update(board) == 1;
+
+      if (modifyResult  && board.getAttachList() != null && board.getAttachList().size() > 0) {
+
+         attachMapper.deleteImageAll(board.getB_seq());
+
+         board.getAttachList().forEach(attach -> {
+
+            attach.setB_seq((long) board.getB_seq());
+            attachMapper.imageEnroll(attach);
+
+         });
+
+      }
+
+
+
+@GetMapping("/list")
+public void list(Criteria cri, Model model) {  
+    List<BoardVO> list = service.getList(cri); // BoardVO 객체 생성
+    for(BoardVO board : list) { // attachList에 BoardAttachVO 객체 추가
+        board.setAttachList(service.getAttachList(board.getBno()));
+    }
+    int total= service.getTotal(cri);  
+    model.addAttribute("list", list); // Model에 BoardVO 객체 리스트 담기
+    model.addAttribute("pageMaker", new PageDTO(cri,total));
+}
+
+
+
+
+
+
+
+
+
+
+     <c:if test="${board.readCount > 10 }">
+<i style="color: #87CEEB" class="fa fa-twitter" ></i>
+                     </c:if>
+                     
+                     
+       <c:if test="${board.readCount > 10 }">
+ <img src="../resources/img/hot." alt="toast" width="400" height="300">
+                     </c:if>       
+                     
+                     <div class="form-group">
+         <label for="qtitle">제목</label> 
+         <input class="form-control" placeholder="제목을 입력하세요." name='qtitle'>
+      </div>
+
+
+      <div class="form-group">
+         <label for="qcontent">내용</label>
+         <textarea class="form-control" rows="10" placeholder="문구기입.
+고객니다." name='qcontent'></textarea>
+      </div>
+      
+ 
+ 
+ 
+<댓글 등록시 작성자 자동생성 시작> 
+      
+             $("#addReplyBtn").on("click", function(e){
+         
+         modal.find("input").val("");
+         modalInputReplyDate.closest("div").hide(); //.closest 가장 가까운 상위 요소를 선택
+         modal.find("button[id !='modalCloseBtn']").hide(); //close버튼 빼고 다 가려라
+         
+         
+         
+         // 댓글 등록시 작성자 기입(여기를 해당값에 맞게 기입)
+         var memberReply = "${member.memberId}" ;
+         modalInputReplyer.val(memberReply);
+         
+    
+         modalRegisterBtn.show(); //Register 버튼 보여라
+         
+         $(".modal").modal("show");
+         
+       });
+       
+<댓글 등록시 작성자 자동생성 끝> 
+
+
+
+
+
+1. 오라클 추가 // [테이블 이름]
+
+alter table [] add readcount number(8) default 0;
+
+commit;
+
+
+2. 보드vo
+private int readcount; //추가
+
+3. 보드서비스
+public int readCount(Long nno); //추가
+
+
+4. 보드서비스임플
+@Override
+public int readCount(Long nno) { //추가
+return noticeMapper.readCount(nno);
+}
+
+5.보드매버.자바
+public int readCount(Long nno); //추가
+
+6. 보드매퍼.xml 
+
+<<<<<<<<<<<<<<<<getListWithPaging 수정>>>>>>>>>> -------- readcount  추가
+<select id="getListWithPaging"
+		resultType="com.hosinsa.domain.NoticeVO">
+  <![CDATA[
+   select 
+     nno, ntitle, ncontent, id, nwritedate, nupdatedate, readcount 
+   from 
+       (
+       select /*+INDEX_DESC(hosinsa_notice pk_notice) */
+         rownum rn, nno, ntitle, ncontent, id, nwritedate, nupdatedate, readcount 
+       from 
+         테이블명
+      where
+  ]]>
+		<include refid="criteria"></include> 
+
+--------------------------------------------------------------------
+<<<<<<<<<<<<<<<<추가>>>>>>>>>>>>>>>
+
+<update id="readCount">  <!-- 추가 -->
+    update [board]
+    set readcount = readcount +1
+    where nno = #{nno}
+</update>
+
+7. 보드컨트롤러 get부분 수정
+
+@GetMapping({ "/get", "/modify" }) // 조회
+public void get(@RequestParam("nno") Long nno, @ModelAttribute("cri") Criteria cri, Model model) {
+service.readCount(nno); //추가
+model.addAttribute("notice", service.get(nno));
+}
+
+
+8. list.jsp에 조회 추가
+
+<th>조회</th>
+<td><c:out value="${notice.readcount}" /></td>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

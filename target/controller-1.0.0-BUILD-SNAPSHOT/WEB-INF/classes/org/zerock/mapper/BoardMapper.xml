@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.mapper.BoardMapper">
+
+
+
+   <select id="getList" resultType="org.zerock.domain.BoardVO">
+      select * from board where bno > 0 order by bno desc <!-- 최신글이 위로 오게 -->
+   </select>
+   
+   
+      <insert id="insert">
+      insert into board(bno, title, content, writer)
+      values(seq_board.nextval, #{title}, #{content}, #{writer})
+   </insert>
+   
+   
+   
+      <insert id="insertSelectKey">
+      <selectKey keyProperty="bno" order="BEFORE"
+         resultType="long">
+         select seq_board.nextval from dual
+      </selectKey>
+      insert into board(bno, title, content, writer)
+      values(#{bno},
+      #{title}, #{content}, #{writer})
+   </insert>
+   
+   
+   
+   
+   
+ <select id="read" resultType="org.zerock.domain.BoardVO">
+      select * from board where bno = #{bno}
+   </select>
+
+
+
+  <delete id="delete">
+      delete from board where bno = #{bno}
+   </delete>
+
+
+
+   <update id="update">
+      update board
+      set 
+      title= #{title},
+      content= #{content},
+      updateDate = sysdate
+      where bno = #{bno}
+   </update>
+   
+
+
+
+
+
+
+
+<sql id="criteria">
+
+	 <trim prefix="(" suffix=") and">
+	 <!-- criteria getTypeArr을 collection으로 
+	 getTypeArr()에서 T C를 받으면 그것을 받아 아래 하나씩 실행 
+	  -->
+	 <foreach collection="typeArr" item="type" separator="or" >
+	 <if test="type== 'T'.toString()">
+	 title like '%' || #{keyword} ||'%'
+	 </if>
+	  <if test="type== 'C'.toString()">
+	 content like '%' || #{keyword} ||'%'
+	 </if>
+	  <if test="type== 'W'.toString()">
+	 writer like '%' || #{keyword} ||'%'
+	 </if>
+	 </foreach>
+	 </trim>
+</sql>
+
+  
+
+
+
+  
+   <select id="getTotalCount" resultType="int">
+      select count(*) from board where 
+        <include refid="criteria"></include>
+      bno >0
+   </select>
+<!-- 여기를 접근하려면 service통해서 접근. -->
+
+
+	<update id = "updateReplyCnt">
+		update board set replycnt = replycnt + #{amount} where bno = #{bno}
+	</update>
+
+
+
+
+
+
+
+
+
+
+
+<select id="getListWithPaging"
+		resultType="org.zerock.domain.BoardVO">
+  <![CDATA[
+
+     select bno, title, content, writer, regdate, updateDate, replyCnt, readCount 
+   from 
+       (
+       select /*+INDEX_DESC(board pk_board)*/
+         rownum rn, bno, title, content,writer, regdate, updateDate, replyCnt, readCount 
+       from 
+         board
+      where
+  ]]>
+		<include refid="criteria"></include> 
+		
+	  <![CDATA[   	
+		 rownum <= #{pageNum}*#{amount}
+		)
+		where rn > (#{pageNum}-1)*#{amount}
+  ]]>  
+  
+  
+  </select>
+  
+
+
+<update id="readCount">  <!-- 추가 -->
+    update board
+    set readCount = readCount +1
+    where bno = #{bno}
+</update>
+
+
+
+
+
+
+
+<select id="bestList" resultType="org.zerock.domain.BoardVO">
+ 
+ 
+ 
+ select bno, title, writer, regdate, readCount
+from (select bno, title, writer, regdate, readCount from board ORDER BY regdate DESC)
+<![CDATA[WHERE ROWNUM <= 5]]>
+ 
+       
+</select>
+
+
+
+
+   
+</mapper>
