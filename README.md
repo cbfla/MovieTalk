@@ -38,6 +38,12 @@ java/ html5/ css/ javascript/ oracle/ servlet&jsp/ spring/ project/ ajax/ jQuery
 · 2023.03.06 ~ 2023.03.17(2주)
 
 
+<h4>:mortar_board:ERD:mortar_board:</h4>
+
+![table](https://user-images.githubusercontent.com/127068885/224926758-4474a0bf-a336-49cf-93d1-88ad492fae6b.png)
+
+
+
 
 
 
