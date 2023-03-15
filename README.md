@@ -3,9 +3,6 @@
 # MovieTalk : 영화 커뮤니티 사이트
 
 
-:pencil2:계속 공부하며 발전중인 신입 개발자 입니다.:books:
-
-
 <h4>:clapper:주요 기능:clapper:</h4>
 
 <b>· 게시판</b>: 게시글 등록, 수정, 삭제 
